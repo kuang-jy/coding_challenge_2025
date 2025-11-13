@@ -6,6 +6,7 @@ class TodoList {
         this.onDelete = onDelete;
         this.todos = [];
         this.filter = 'all';
+        this.bindEvents();
     }
 
     setTodos(todos) {
@@ -28,7 +29,6 @@ class TodoList {
 
         const html = filtered.map(todo => this.renderTodoItem(todo)).join('');
         this.container.innerHTML = html;
-        this.bindEvents();
     }
 
     renderTodoItem(todo) {
