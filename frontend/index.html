@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📝 TODO List</h1>
+        
+        <!-- 添加任务表单 -->
+        <div id="todoForm"></div>
+        
+        <!-- 过滤器 -->
+        <div id="filterBar"></div>
+        
+        <!-- 任务列表 -->
+        <div id="todoList"></div>
+    </div>
+
+    <!-- 工具函数 -->
+    <script src="utils/dom.js"></script>
+    
+    <!-- 服务层 -->
+    <script src="services/api.js"></script>
+    
+    <!-- 组件 -->
+    <script src="components/todo-form.js"></script>
+    <script src="components/filter-bar.js"></script>
+    <script src="components/todo-list.js"></script>
+    
+    <!-- 主应用 -->
+    <script src="app.js"></script>
+</body>
+</html>

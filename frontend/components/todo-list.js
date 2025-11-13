@@ -1,0 +1,89 @@
+// 待办事项列表组件
+class TodoList {
+    constructor(container, onToggle, onDelete) {
+        this.container = container;
+        this.onToggle = onToggle;
+        this.onDelete = onDelete;
+        this.todos = [];
+        this.filter = 'all';
+    }
+
+    setTodos(todos) {
+        this.todos = todos;
+        this.render();
+    }
+
+    setFilter(filter) {
+        this.filter = filter;
+        this.render();
+    }
+
+    render() {
+        const filtered = this.getFilteredTodos();
+        
+        if (filtered.length === 0) {
+            this.container.innerHTML = '<p class="empty-message">暂无任务</p>';
+            return;
+        }
+
+        const html = filtered.map(todo => this.renderTodoItem(todo)).join('');
+        this.container.innerHTML = html;
+        this.bindEvents();
+    }
+
+    renderTodoItem(todo) {
+        const createdAt = new Date(todo.created_at).toLocaleString('zh-CN');
+        return `
+            <div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
+                <input type="checkbox" ${todo.completed ? 'checked' : ''} 
+                       class="todo-checkbox">
+                <div class="todo-content">
+                    <div class="todo-title">${this.escapeHtml(todo.title)}</div>
+                    <div class="todo-meta">
+                        ${todo.description ? `<div class="todo-description">${this.escapeHtml(todo.description)}</div>` : ''}
+                        <span class="category">${todo.category}</span>
+                        <span class="created-time">${createdAt}</span>
+                    </div>
+                </div>
+                <button class="btn-small btn-danger delete-btn">删除</button>
+            </div>
+        `;
+    }
+
+    bindEvents() {
+        this.container.addEventListener('change', (e) => {
+            if (e.target.classList.contains('todo-checkbox')) {
+                const id = parseInt(e.target.closest('.todo-item').dataset.id);
+                this.onToggle(id);
+            }
+        });
+
+        this.container.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const id = parseInt(e.target.closest('.todo-item').dataset.id);
+                if (confirm('确定要删除这个任务吗？')) {
+                    this.onDelete(id);
+                }
+            }
+        });
+    }
+
+    getFilteredTodos() {
+        return this.todos.filter(todo => {
+            switch (this.filter) {
+                case 'all': return true;
+                case 'pending': return !todo.completed;
+                case 'completed': return todo.completed;
+                default: return todo.category === this.filter;
+            }
+        });
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+}
+
+window.TodoList = TodoList;
