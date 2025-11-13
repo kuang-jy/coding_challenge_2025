@@ -27,8 +27,9 @@ class ApiService {
     }
 
     // 获取所有待办事项
-    async getTodos() {
-        return this.request('/todos');
+    async getTodos(sortBy = '') {
+        const url = sortBy ? `/todos?sort=${sortBy}` : '/todos';
+        return this.request(url);
     }
 
     // 创建新待办事项

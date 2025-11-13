@@ -2,6 +2,7 @@
 class TodoApp {
     constructor() {
         this.todos = [];
+        this.currentSort = '';
         this.init();
     }
 
@@ -14,7 +15,8 @@ class TodoApp {
 
         this.filterBar = new FilterBar(
             document.getElementById('filterBar'),
-            (filter) => this.filterTodos(filter)
+            (filter) => this.filterTodos(filter),
+            (sort) => this.sortTodos(sort)
         );
 
         this.todoList = new TodoList(
@@ -29,7 +31,7 @@ class TodoApp {
 
     async loadTodos() {
         try {
-            this.todos = await apiService.getTodos() || [];
+            this.todos = await apiService.getTodos(this.currentSort) || [];
             this.todoList.setTodos(this.todos);
         } catch (error) {
             console.error('Failed to load todos:', error);
@@ -79,6 +81,11 @@ class TodoApp {
 
     filterTodos(filter) {
         this.todoList.setFilter(filter);
+    }
+
+    async sortTodos(sort) {
+        this.currentSort = sort;
+        await this.loadTodos();
     }
 
     showError(message) {

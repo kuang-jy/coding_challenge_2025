@@ -18,7 +18,13 @@ class TodoForm {
                     <option value="生活">生活</option>
                     <option value="其他">其他</option>
                 </select>
-                <button id="addBtn">添加任务</button>
+                <select id="priority">
+                    <option value="high">高优先级</option>
+                    <option value="medium" selected>中优先级</option>
+                    <option value="low">低优先级</option>
+                </select>
+                <input type="date" id="dueDate" title="截止日期（可选）">
+                <button type="button" id="addBtn">添加任务</button>
             </div>
         `;
     }
@@ -40,7 +46,9 @@ class TodoForm {
         const todo = {
             title,
             description: this.container.querySelector('#description').value.trim(),
-            category: this.container.querySelector('#category').value
+            category: this.container.querySelector('#category').value,
+            priority: this.container.querySelector('#priority').value,
+            due_date: this.container.querySelector('#dueDate').value || null
         };
 
         this.onSubmit(todo);
@@ -50,6 +58,8 @@ class TodoForm {
     reset() {
         this.container.querySelector('#title').value = '';
         this.container.querySelector('#description').value = '';
+        this.container.querySelector('#priority').value = 'medium';
+        this.container.querySelector('#dueDate').value = '';
     }
 }
 

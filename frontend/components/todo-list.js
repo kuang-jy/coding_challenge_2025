@@ -33,6 +33,10 @@ class TodoList {
 
     renderTodoItem(todo) {
         const createdAt = new Date(todo.created_at).toLocaleString('zh-CN');
+        const dueDate = todo.due_date ? new Date(todo.due_date).toLocaleDateString('zh-CN') : null;
+        const priorityText = {high: '高', medium: '中', low: '低'}[todo.priority] || '中';
+        const priorityClass = `priority-${todo.priority || 'medium'}`;
+        
         return `
             <div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
                 <input type="checkbox" ${todo.completed ? 'checked' : ''} 
@@ -42,6 +46,8 @@ class TodoList {
                     <div class="todo-meta">
                         ${todo.description ? `<div class="todo-description">${this.escapeHtml(todo.description)}</div>` : ''}
                         <span class="category">${todo.category}</span>
+                        <span class="priority ${priorityClass}">优先级: ${priorityText}</span>
+                        ${dueDate ? `<span class="due-date">截止: ${dueDate}</span>` : ''}
                         <span class="created-time">${createdAt}</span>
                     </div>
                 </div>

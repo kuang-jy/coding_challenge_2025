@@ -3,6 +3,8 @@ package services
 import (
 	"encoding/json"
 	"io/ioutil"
+	"sort"
+	"time"
 	"todolist/backend/models"
 )
 
@@ -29,9 +31,59 @@ func (s *TodoService) GetAll() []models.Todo {
 	return s.todos
 }
 
+// GetAllSorted 获取排序后的所有待办事项
+func (s *TodoService) GetAllSorted(sortBy string) []models.Todo {
+	todos := make([]models.Todo, len(s.todos))
+	copy(todos, s.todos)
+	
+	switch sortBy {
+	case "priority":
+		s.sortByPriority(todos)
+	case "due_date":
+		s.sortByDueDate(todos)
+	case "created_at":
+		s.sortByCreatedAt(todos)
+	default:
+		return todos
+	}
+	
+	return todos
+}
+
+// sortByPriority 按优先级排序
+func (s *TodoService) sortByPriority(todos []models.Todo) {
+	priorityOrder := map[string]int{"high": 1, "medium": 2, "low": 3}
+	sort.Slice(todos, func(i, j int) bool {
+		return priorityOrder[todos[i].Priority] < priorityOrder[todos[j].Priority]
+	})
+}
+
+// sortByDueDate 按截止日期排序
+func (s *TodoService) sortByDueDate(todos []models.Todo) {
+	sort.Slice(todos, func(i, j int) bool {
+		if todos[i].DueDate == nil && todos[j].DueDate == nil {
+			return false
+		}
+		if todos[i].DueDate == nil {
+			return false
+		}
+		if todos[j].DueDate == nil {
+			return true
+		}
+		return todos[i].DueDate.Before(*todos[j].DueDate)
+	})
+}
+
+// sortByCreatedAt 按创建日期排序
+func (s *TodoService) sortByCreatedAt(todos []models.Todo) {
+	sort.Slice(todos, func(i, j int) bool {
+		return todos[i].CreatedAt.After(todos[j].CreatedAt)
+	})
+}
+
 // Add 添加新的待办事项
-func (s *TodoService) Add(title, description, category string) *models.Todo {
-	todo := models.NewTodo(title, description, category)
+func (s *TodoService) Add(title, description, category, priority string, dueDate *time.Time) *models.Todo {
+	todo := models.NewTodo(title, description, category, priority, dueDate)
 	todo.ID = s.nextID
 	s.nextID++
 	s.todos = append(s.todos, *todo)

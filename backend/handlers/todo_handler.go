@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 	"todolist/backend/models"
 	"todolist/backend/services"
 	"todolist/backend/utils"
@@ -23,7 +24,13 @@ func NewTodoHandler(service *services.TodoService) *TodoHandler {
 func (h *TodoHandler) GetTodos(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCORS(w)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(h.service.GetAll())
+	
+	sortBy := r.URL.Query().Get("sort")
+	if sortBy != "" {
+		json.NewEncoder(w).Encode(h.service.GetAllSorted(sortBy))
+	} else {
+		json.NewEncoder(w).Encode(h.service.GetAll())
+	}
 }
 
 // CreateTodo 创建新待办事项
@@ -37,6 +44,8 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 		Title       string `json:"title"`
 		Description string `json:"description"`
 		Category    string `json:"category"`
+		Priority    string `json:"priority"`
+		DueDate     string `json:"due_date"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -44,7 +53,18 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo := h.service.Add(req.Title, req.Description, req.Category)
+	var dueDate *time.Time
+	if req.DueDate != "" {
+		if parsed, err := time.Parse("2006-01-02", req.DueDate); err == nil {
+			dueDate = &parsed
+		}
+	}
+
+	if req.Priority == "" {
+		req.Priority = "medium"
+	}
+
+	todo := h.service.Add(req.Title, req.Description, req.Category, req.Priority, dueDate)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(todo)
 }
