@@ -6,6 +6,7 @@ class TodoList {
         this.onDelete = onDelete;
         this.todos = [];
         this.filter = 'all';
+        this.searchTerm = '';
         this.bindEvents();
     }
 
@@ -19,15 +20,27 @@ class TodoList {
         this.render();
     }
 
+    setSearchTerm(searchTerm) {
+        this.searchTerm = searchTerm.toLowerCase();
+        this.render();
+    }
+
     render() {
         const filtered = this.getFilteredTodos();
         
         if (filtered.length === 0) {
-            this.container.innerHTML = '<p class="empty-message">暂无任务</p>';
+            const message = this.searchTerm ? 
+                `未找到包含 "${this.searchTerm}" 的任务` : 
+                '暂无任务';
+            this.container.innerHTML = `<p class="empty-message">${message}</p>`;
             return;
         }
 
-        const html = filtered.map(todo => this.renderTodoItem(todo)).join('');
+        let html = '';
+        if (this.searchTerm && filtered.length > 0) {
+            html += `<div class="search-results">找到 ${filtered.length} 个相关任务</div>`;
+        }
+        html += filtered.map(todo => this.renderTodoItem(todo)).join('');
         this.container.innerHTML = html;
     }
 
@@ -76,12 +89,24 @@ class TodoList {
 
     getFilteredTodos() {
         return this.todos.filter(todo => {
+            // 应用过滤器
+            let matchesFilter = true;
             switch (this.filter) {
-                case 'all': return true;
-                case 'pending': return !todo.completed;
-                case 'completed': return todo.completed;
-                default: return todo.category === this.filter;
+                case 'all': matchesFilter = true; break;
+                case 'pending': matchesFilter = !todo.completed; break;
+                case 'completed': matchesFilter = todo.completed; break;
+                default: matchesFilter = todo.category === this.filter;
             }
+            
+            // 应用搜索
+            let matchesSearch = true;
+            if (this.searchTerm) {
+                const title = todo.title.toLowerCase();
+                const description = (todo.description || '').toLowerCase();
+                matchesSearch = title.includes(this.searchTerm) || description.includes(this.searchTerm);
+            }
+            
+            return matchesFilter && matchesSearch;
         });
     }
 

@@ -13,6 +13,11 @@ class TodoApp {
             (todo) => this.addTodo(todo)
         );
 
+        this.searchBar = new SearchBar(
+            document.getElementById('searchBar'),
+            (searchTerm) => this.searchTodos(searchTerm)
+        );
+
         this.filterBar = new FilterBar(
             document.getElementById('filterBar'),
             (filter) => this.filterTodos(filter),
@@ -86,6 +91,10 @@ class TodoApp {
     async sortTodos(sort) {
         this.currentSort = sort;
         await this.loadTodos();
+    }
+
+    searchTodos(searchTerm) {
+        this.todoList.setSearchTerm(searchTerm);
     }
 
     showError(message) {
